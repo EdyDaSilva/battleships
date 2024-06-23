@@ -20,17 +20,12 @@ def place_ship(grid, size, ship_count):
                 break
     return ships
 
-def get_user_guess(size):
-    while True:
-        try:
-            guess_row = int(input(f"Enter row (0-{size-1}): "))
-            guess_col = int(input(f"Enter column (0-{size-1}): "))
-            if 0 <= guess_row < size and 0 <= guess_col < size:
-                return guess_row, guess_col
-            else:
-                print(f"Please enter numbers between 0 and {size-1}.")
-        except ValueError:
-            print("Please enter valid numbers.")
+def get_user_guess(size, player, turn):
+    # Simulating guesses for demonstration
+    guess_row = random.randint(0, size-1)
+    guess_col = random.randint(0, size-1)
+    print(f"Player {player}'s turn ({turn}). Guess: row {guess_row}, column {guess_col}")
+    return guess_row, guess_col
 
 def check_guess(ships, guess_row, guess_col):
     if (guess_row, guess_col) in ships:
@@ -58,12 +53,13 @@ def play_battleships():
     player2_ships = place_ship(player2_grid, size, ship_count)
     
     player1_turn = True
+    turn = 1
     
     while player1_ships and player2_ships:
         if player1_turn:
             print("Player 1's turn")
             print_grid(player2_grid)
-            guess_row, guess_col = get_user_guess(size)
+            guess_row, guess_col = get_user_guess(size, 1, turn)
             hit = check_guess(player2_ships, guess_row, guess_col)
             update_grid(player2_grid, guess_row, guess_col, hit)
             if not hit:
@@ -71,11 +67,13 @@ def play_battleships():
         else:
             print("Player 2's turn")
             print_grid(player1_grid)
-            guess_row, guess_col = get_user_guess(size)
+            guess_row, guess_col = get_user_guess(size, 2, turn)
             hit = check_guess(player1_ships, guess_row, guess_col)
             update_grid(player1_grid, guess_row, guess_col, hit)
             if not hit:
                 player1_turn = True
+        
+        turn += 1
     
     if not player1_ships:
         print("Player 2 wins!")
