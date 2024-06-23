@@ -44,4 +44,11 @@ def check_guess(ships, guess_row, guess_col):
         print("Miss!")
         return False
     
-    
+
+def update_grid(grid, guess_row, guess_col, hit):
+    if hit:
+        grid[guess_row][guess_col] = "X"
+    else:
+        grid[guess_row][guess_col] = "O"
+
+
