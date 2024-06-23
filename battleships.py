@@ -34,3 +34,14 @@ def get_user_guess(size):
         except ValueError:
             print("Please enter valid numbers.")
 
+
+def check_guess(ships, guess_row, guess_col):
+    if (guess_row, guess_col) in ships:
+        print("Hit!")
+        ships.remove((guess_row, guess_col))
+        return True
+    else:
+        print("Miss!")
+        return False
+    
+    
