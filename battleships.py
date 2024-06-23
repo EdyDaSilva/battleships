@@ -1,14 +1,13 @@
+import os
 import random
 
 def initialize_grid(size):
     return [["~" for _ in range(size)] for _ in range(size)]
 
-
 def print_grid(grid):
     for row in grid:
         print(" ".join(row))
     print()
-
 
 def place_ship(grid, size, ship_count):
     ships = []
@@ -20,7 +19,6 @@ def place_ship(grid, size, ship_count):
                 ships.append((ship_row, ship_col))
                 break
     return ships
-
 
 def get_user_guess(size):
     while True:
@@ -34,7 +32,6 @@ def get_user_guess(size):
         except ValueError:
             print("Please enter valid numbers.")
 
-
 def check_guess(ships, guess_row, guess_col):
     if (guess_row, guess_col) in ships:
         print("Hit!")
@@ -43,7 +40,6 @@ def check_guess(ships, guess_row, guess_col):
     else:
         print("Miss!")
         return False
-    
 
 def update_grid(grid, guess_row, guess_col, hit):
     if hit:
@@ -51,10 +47,9 @@ def update_grid(grid, guess_row, guess_col, hit):
     else:
         grid[guess_row][guess_col] = "O"
 
-
 def play_battleships():
-    size = int(input("Enter grid size: "))
-    ship_count = int(input("Enter number of ships: "))
+    size = int(os.getenv("GRID_SIZE", 5))
+    ship_count = int(os.getenv("SHIP_COUNT", 3))
     
     player1_grid = initialize_grid(size)
     player2_grid = initialize_grid(size)
