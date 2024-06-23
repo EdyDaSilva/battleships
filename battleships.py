@@ -52,3 +52,40 @@ def update_grid(grid, guess_row, guess_col, hit):
         grid[guess_row][guess_col] = "O"
 
 
+def play_battleships():
+    size = int(input("Enter grid size: "))
+    ship_count = int(input("Enter number of ships: "))
+    
+    player1_grid = initialize_grid(size)
+    player2_grid = initialize_grid(size)
+    
+    player1_ships = place_ship(player1_grid, size, ship_count)
+    player2_ships = place_ship(player2_grid, size, ship_count)
+    
+    player1_turn = True
+    
+    while player1_ships and player2_ships:
+        if player1_turn:
+            print("Player 1's turn")
+            print_grid(player2_grid)
+            guess_row, guess_col = get_user_guess(size)
+            hit = check_guess(player2_ships, guess_row, guess_col)
+            update_grid(player2_grid, guess_row, guess_col, hit)
+            if not hit:
+                player1_turn = False
+        else:
+            print("Player 2's turn")
+            print_grid(player1_grid)
+            guess_row, guess_col = get_user_guess(size)
+            hit = check_guess(player1_ships, guess_row, guess_col)
+            update_grid(player1_grid, guess_row, guess_col, hit)
+            if not hit:
+                player1_turn = True
+    
+    if not player1_ships:
+        print("Player 2 wins!")
+    else:
+        print("Player 1 wins!")
+
+if __name__ == "__main__":
+    play_battleships()
