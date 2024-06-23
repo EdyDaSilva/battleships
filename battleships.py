@@ -21,3 +21,16 @@ def place_ship(grid, size, ship_count):
                 break
     return ships
 
+
+def get_user_guess(size):
+    while True:
+        try:
+            guess_row = int(input(f"Enter row (0-{size-1}): "))
+            guess_col = int(input(f"Enter column (0-{size-1}): "))
+            if 0 <= guess_row < size and 0 <= guess_col < size:
+                return guess_row, guess_col
+            else:
+                print(f"Please enter numbers between 0 and {size-1}.")
+        except ValueError:
+            print("Please enter valid numbers.")
+
