@@ -1,13 +1,13 @@
+from flask import Flask, request, jsonify
 import os
 import random
 
+app = Flask(__name__)
+
+games = {}
+
 def initialize_grid(size):
     return [["~" for _ in range(size)] for _ in range(size)]
-
-def print_grid(grid):
-    for row in grid:
-        print(" ".join(row))
-    print()
 
 def place_ship(grid, size, ship_count):
     ships = []
@@ -20,65 +20,69 @@ def place_ship(grid, size, ship_count):
                 break
     return ships
 
-def get_user_guess(size, player, turn):
-    # Simulating guesses for demonstration
-    guess_row = random.randint(0, size-1)
-    guess_col = random.randint(0, size-1)
-    print(f"Player {player}'s turn ({turn}). Guess: row {guess_row}, column {guess_col}")
-    return guess_row, guess_col
-
 def check_guess(ships, guess_row, guess_col):
     if (guess_row, guess_col) in ships:
-        print("Hit!")
         ships.remove((guess_row, guess_col))
-        return True
+        return "Hit!"
     else:
-        print("Miss!")
-        return False
+        return "Miss!"
 
-def update_grid(grid, guess_row, guess_col, hit):
-    if hit:
-        grid[guess_row][guess_col] = "X"
-    else:
-        grid[guess_row][guess_col] = "O"
-
-def play_battleships():
-    size = int(os.getenv("GRID_SIZE", 5))
-    ship_count = int(os.getenv("SHIP_COUNT", 3))
+@app.route('/start_game', methods=['POST'])
+def start_game():
+    data = request.json
+    size = data.get('size', 5)
+    ship_count = data.get('ship_count', 3)
+    game_id = str(len(games) + 1)
     
     player1_grid = initialize_grid(size)
     player2_grid = initialize_grid(size)
-    
     player1_ships = place_ship(player1_grid, size, ship_count)
     player2_ships = place_ship(player2_grid, size, ship_count)
     
-    player1_turn = True
-    turn = 1
+    games[game_id] = {
+        'size': size,
+        'ship_count': ship_count,
+        'player1': {'grid': player1_grid, 'ships': player1_ships},
+        'player2': {'grid': player2_grid, 'ships': player2_ships},
+        'turn': 1
+    }
     
-    while player1_ships and player2_ships:
-        if player1_turn:
-            print("Player 1's turn")
-            print_grid(player2_grid)
-            guess_row, guess_col = get_user_guess(size, 1, turn)
-            hit = check_guess(player2_ships, guess_row, guess_col)
-            update_grid(player2_grid, guess_row, guess_col, hit)
-            if not hit:
-                player1_turn = False
-        else:
-            print("Player 2's turn")
-            print_grid(player1_grid)
-            guess_row, guess_col = get_user_guess(size, 2, turn)
-            hit = check_guess(player1_ships, guess_row, guess_col)
-            update_grid(player1_grid, guess_row, guess_col, hit)
-            if not hit:
-                player1_turn = True
-        
-        turn += 1
+    return jsonify({'game_id': game_id, 'message': 'Game started'}), 200
+
+@app.route('/guess', methods=['POST'])
+def make_guess():
+    data = request.json
+    game_id = data['game_id']
+    player = data['player']
+    guess_row = data['row']
+    guess_col = data['col']
     
-    if not player1_ships:
-        print("Player 2 wins!")
+    game = games.get(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    
+    opponent = 'player2' if player == 1 else 'player1'
+    ships = game[opponent]['ships']
+    
+    result = check_guess(ships, guess_row, guess_col)
+    if result == "Hit!":
+        game[opponent]['grid'][guess_row][guess_col] = "X"
     else:
-        print("Player 1 wins!")
+        game[opponent]['grid'][guess_row][guess_col] = "O"
+    
+    game['turn'] += 1
+    if not ships:
+        return jsonify({'game_id': game_id, 'result': f'Player {player} wins!'}), 200
+    
+    return jsonify({'game_id': game_id, 'result': result, 'turn': game['turn']}), 200
+
+@app.route('/game_status/<game_id>', methods=['GET'])
+def game_status(game_id):
+    game = games.get(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    
+    return jsonify(game), 200
 
 if __name__ == "__main__":
-    play_battleships()
+    app.run(host='0.0.0.0', port=5000)
