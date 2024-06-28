@@ -1,1 +1,1 @@
-worker: python battleships.py
+web: python app.py

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Battleship Game</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+        .hit {
+            background-color: red;
+        }
+        .miss {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Battleship Game</h1>
+    <button onclick="startGame()">Start Game</button>
+    <div id="game"></div>
+    <script>
+        let gameId;
+        let player = 1;
+        const gridSize = 5;
+
+        async function startGame() {
+            renderGrid(gridSize); // Render the grid immediately
+            try {
+                const response = await fetch('/start_game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ size: gridSize, ship_count: 3 })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                gameId = data.game_id;
+                alert('Game started!');
+                console.log('Game started with ID:', gameId);
+            } catch (error) {
+                console.error('Error starting game:', error);
+                alert('Failed to start game. Check console for details.');
+            }
+        }
+
+        function renderGrid(size) {
+            const gameDiv = document.getElementById('game');
+            gameDiv.innerHTML = '<h2>Player ' + player + '\'s Turn</h2>';
+            const table = document.createElement('table');
+            for (let i = 0; i < size; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < size; j++) {
+                    const cell = document.createElement('td');
+                    cell.addEventListener('click', () => makeGuess(i, j));
+                    row.appendChild(cell);
+                }
+                table.appendChild(row);
+            }
+            gameDiv.appendChild(table);
+        }
+
+        async function makeGuess(row, col) {
+            try {
+                const response = await fetch('/guess', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: gameId, player: player, row: row, col: col })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log('Guess result:', data);
+                alert(data.result);
+                updateGrid(row, col, data.result);
+                if (data.result.includes('wins')) {
+                    alert(data.result);
+                    startGame();
+                } else {
+                    player = player === 1 ? 2 : 1;
+                    renderGrid(gridSize);
+                }
+            } catch (error) {
+                console.error('Error making guess:', error);
+                alert('Failed to make guess. Check console for details.');
+            }
+        }
+
+        function updateGrid(row, col, result) {
+            const table = document.querySelector('table');
+            const cell = table.rows[row].cells[col];
+            if (result === 'Hit!') {
+                cell.classList.add('hit');
+            } else {
+                cell.classList.add('miss');
+            }
+        }
+    </script>
+</body>
+</html>

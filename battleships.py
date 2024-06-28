@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import os
 import random
 
@@ -26,6 +26,10 @@ def check_guess(ships, guess_row, guess_col):
         return "Hit!"
     else:
         return "Miss!"
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
 
 @app.route('/start_game', methods=['POST'])
 def start_game():
