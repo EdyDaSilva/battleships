@@ -48,10 +48,10 @@ def start_game():
         'ship_count': ship_count,
         'player1': {'grid': player1_grid, 'ships': player1_ships},
         'player2': {'grid': player2_grid, 'ships': player2_ships},
-        'turn': 1
+        'turn': 1  # Start with player 1
     }
     
-    return jsonify({'game_id': game_id, 'message': 'Game started'}), 200
+    return jsonify({'game_id': game_id, 'message': 'Game started', 'grid': player1_grid, 'turn': 1}), 200
 
 @app.route('/guess', methods=['POST'])
 def make_guess():
@@ -74,9 +74,10 @@ def make_guess():
     else:
         game[opponent]['grid'][guess_row][guess_col] = "O"
     
-    game['turn'] += 1
     if not ships:
-        return jsonify({'game_id': game_id, 'result': f'Player {player} wins!', 'grid': game[opponent]['grid']}), 200
+        return jsonify({'game_id': game_id, 'result': f'Player {player} wins!', 'message': 'Congratulations, you win!', 'grid': game[opponent]['grid']}), 200
+    
+    game['turn'] = 2 if player == 1 else 1  # Toggle turn
     
     return jsonify({'game_id': game_id, 'result': result, 'turn': game['turn'], 'grid': game[opponent]['grid']}), 200
 

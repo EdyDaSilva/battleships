@@ -1,33 +1,30 @@
 # Battleships Game
 
-This is a simple Battleships game implemented as a Flask web service. Players can start a new game, make guesses to locate ships, and check the game status through HTTP endpoints.
+This is a simple Battleships game implemented as a Flask web service. Players can start a new game, make guesses to locate ships.
 
 ## Features
 
-- Start a new game with a configurable grid size and number of ships.
+- Start a new game.
 - Make guesses to find the opponent's ships.
+- Alternating turns between players after each guess.
+- Visual feedback on the grid for hits ("X") and misses ("O").
 - Check the game status, including grids and turn information.
 
 ## How to Play
+- https://battleships-o91n.onrender.com
 
 ### Start a New Game
 
-To start a new game, make a `POST` request to the `/start_game` endpoint with the desired grid size and number of ships.
+To start a new game, click at the "Start Game" button.
 
 ### Make a Guess
 
-To make a guess, make a `POST` request to the `/guess` endpoint with the game ID, player number, and guess coordinates (row and column).
+To make a guess, click at your choice on the grid, coordinates are (row and column).
 
-### Check Game Status
+### Game Status
 
-To check the game status, make a `GET` request to the `/game_status/<game_id>` endpoint.
+"O" with blue background indicates a Miss and "X" with red background a Hit. 
 
-## Getting Started
-
-### Prerequisites
-
-- Python 3.x installed on your machine.
-- Flask installed (can be added via `requirements.txt`).
 
 ### Installation
 
@@ -61,9 +58,6 @@ To check the game status, make a `GET` request to the `/game_status/<game_id>` e
     pip install -r requirements.txt
     ```
 
-### Running the Game Locally
+### Acknowledgments
+Code Institute
 
-To run the Flask application locally:
-
-```bash
-python battleships.py

@@ -31,7 +31,6 @@
         const gridSize = 5;
 
         async function startGame() {
-            renderGrid(gridSize); // Render the grid immediately
             try {
                 const response = await fetch('/start_game', {
                     method: 'POST',
@@ -45,13 +44,15 @@
                 gameId = data.game_id;
                 alert('Game started!');
                 console.log('Game started with ID:', gameId);
+                renderGrid(gridSize, data.grid);
+                player = data.turn; // Set initial player turn
             } catch (error) {
                 console.error('Error starting game:', error);
                 alert('Failed to start game. Check console for details.');
             }
         }
 
-        function renderGrid(size, grid = null) {
+        function renderGrid(size, grid) {
             const gameDiv = document.getElementById('game');
             gameDiv.innerHTML = '<h2>Player ' + player + '\'s Turn</h2>';
             const table = document.createElement('table');
@@ -60,12 +61,12 @@
                 for (let j = 0; j < size; j++) {
                     const cell = document.createElement('td');
                     cell.addEventListener('click', () => makeGuess(i, j));
-                    if (grid) {
-                        if (grid[i][j] === "X") {
-                            cell.classList.add('hit');
-                        } else if (grid[i][j] === "O") {
-                            cell.classList.add('miss');
-                        }
+                    if (grid[i][j] === "X") {
+                        cell.classList.add('hit');
+                        cell.textContent = 'X';
+                    } else if (grid[i][j] === "O") {
+                        cell.classList.add('miss');
+                        cell.textContent = 'O';
                     }
                     row.appendChild(cell);
                 }
@@ -89,10 +90,11 @@
                 alert(data.result);
                 renderGrid(gridSize, data.grid);
                 if (data.result.includes('wins')) {
-                    alert(data.result);
+                    alert('Congratulations, you win!');
                     startGame();
                 } else {
-                    player = player === 1 ? 2 : 1;
+                    player = data.turn; // Update player turn based on backend response
+                    document.querySelector('h2').textContent = 'Player ' + player + '\'s Turn';
                 }
             } catch (error) {
                 console.error('Error making guess:', error);
