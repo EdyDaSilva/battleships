@@ -51,7 +51,7 @@
             }
         }
 
-        function renderGrid(size) {
+        function renderGrid(size, grid = null) {
             const gameDiv = document.getElementById('game');
             gameDiv.innerHTML = '<h2>Player ' + player + '\'s Turn</h2>';
             const table = document.createElement('table');
@@ -60,6 +60,13 @@
                 for (let j = 0; j < size; j++) {
                     const cell = document.createElement('td');
                     cell.addEventListener('click', () => makeGuess(i, j));
+                    if (grid) {
+                        if (grid[i][j] === "X") {
+                            cell.classList.add('hit');
+                        } else if (grid[i][j] === "O") {
+                            cell.classList.add('miss');
+                        }
+                    }
                     row.appendChild(cell);
                 }
                 table.appendChild(row);
@@ -80,27 +87,16 @@
                 const data = await response.json();
                 console.log('Guess result:', data);
                 alert(data.result);
-                updateGrid(row, col, data.result);
+                renderGrid(gridSize, data.grid);
                 if (data.result.includes('wins')) {
                     alert(data.result);
                     startGame();
                 } else {
                     player = player === 1 ? 2 : 1;
-                    renderGrid(gridSize);
                 }
             } catch (error) {
                 console.error('Error making guess:', error);
                 alert('Failed to make guess. Check console for details.');
-            }
-        }
-
-        function updateGrid(row, col, result) {
-            const table = document.querySelector('table');
-            const cell = table.rows[row].cells[col];
-            if (result === 'Hit!') {
-                cell.classList.add('hit');
-            } else {
-                cell.classList.add('miss');
             }
         }
     </script>

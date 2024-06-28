@@ -76,9 +76,9 @@ def make_guess():
     
     game['turn'] += 1
     if not ships:
-        return jsonify({'game_id': game_id, 'result': f'Player {player} wins!'}), 200
+        return jsonify({'game_id': game_id, 'result': f'Player {player} wins!', 'grid': game[opponent]['grid']}), 200
     
-    return jsonify({'game_id': game_id, 'result': result, 'turn': game['turn']}), 200
+    return jsonify({'game_id': game_id, 'result': result, 'turn': game['turn'], 'grid': game[opponent]['grid']}), 200
 
 @app.route('/game_status/<game_id>', methods=['GET'])
 def game_status(game_id):
